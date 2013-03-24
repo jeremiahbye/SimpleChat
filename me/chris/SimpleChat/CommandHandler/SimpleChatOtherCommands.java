@@ -43,16 +43,25 @@ public class SimpleChatOtherCommands
 		p.sendMessage("§5==================§c [ SimpleChat Help ] §5==================");
 		p.sendMessage("§c/simplechat §e- States the general info.");
 		p.sendMessage("§c/simplechat help §e- Brings up the help menu. ");
+		p.sendMessage("§c/simplechat generateYamls §e- Generates sample yamls. ");
 		p.sendMessage("§c/simplechat reload §e- Reloads all the files. ");
 		p.sendMessage("§c/chat §e- Toggles current chat state. ");
 		p.sendMessage("§c/chaton §e- Turns server-wide chat on. ");
 		p.sendMessage("§c/chatoff §e- Turns server-wide chat off. ");
 		p.sendMessage("§c/scconfig §e- Edits config.yml values ");
 		p.sendMessage("§c/scextra §e- Edits extra.yml values ");
+		p.sendMessage("§c/ssparty §e- Toggles SocialSpy for parties");
+		p.sendMessage("§c/sspm §e- Toggles SocialSpy for PMs ");
 		p.sendMessage("§3§oNOTE: A \"...\" signifies that the respective value can");
 		p.sendMessage("§3§ohave multiple words/phrases.");
 		p.sendMessage("§3§oNOTE: \"msg\" and \"message\" are interchangeable ");
 		p.sendMessage("§3§othroughout the plugin. ");
+	}
+	
+	public static void genYamls(Player p)
+	{
+		Variables.plugin.copy(Variables.plugin.getResource("config-example.yml"), Variables.configExampleFile);
+		Variables.plugin.copy(Variables.plugin.getResource("extra-example.yml"), Variables.extraExampleFile);
 	}
 
 	public static void reload(Player p)
@@ -73,6 +82,32 @@ public class SimpleChatOtherCommands
 		String meMsg = SimpleChatHelperMethods.replaceVars(Variables.MeFormat, vars, replace);
 		Variables.plugin.getServer().broadcastMessage(meMsg);
 
+	}
+	
+	public static void say(Player p, String[] args)
+	{
+		String msg = "";
+		for (String word : args)
+		{
+			msg += " " + word;
+		}
+		String[] vars = {"+msg", "&" };
+		String[] replace = { msg.trim(), "§" };
+		String sayMsg = SimpleChatHelperMethods.replaceVars(Variables.SayFormat, vars, replace);
+		Variables.plugin.getServer().broadcastMessage(sayMsg);
+	}
+
+	public static void broadcast(Player p, String[] args)
+	{
+		String msg = "";
+		for (String word : args)
+		{
+			msg += " " + word;
+		}
+		String[] vars = {"+msg", "&" };
+		String[] replace = { msg.trim(), "§" };
+		String BcastMsg = SimpleChatHelperMethods.replaceVars(Variables.BroadcastFormat, vars, replace);
+		Variables.plugin.getServer().broadcastMessage(BcastMsg);
 	}
 
 	public static void chat(Player p)
@@ -101,5 +136,7 @@ public class SimpleChatOtherCommands
 		Variables.plugin.getServer().broadcastMessage("§a[SimpleChat]§7 Chat has been turned §4§lOFF§r§7 by §c" + p.getName());
 		SimpleChatChatState.setChatState("off");
 	}
+
+	
 
 }

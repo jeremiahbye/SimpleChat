@@ -157,7 +157,7 @@ public class SimpleChatHelperMethods
 			{
 				if (Variables.PunishmentMsgToPlayer)
 				{
-					p.sendMessage(Variables.MsgToPlayer);
+					p.sendMessage(Variables.MsgToPlayer.replaceAll("&", "§"));
 				}
 				
 				if (Variables.PunishmentReplaceMsg)

@@ -10,9 +10,9 @@ public class SimpleChatExtraCommands
 {
 	SimpleChatExtraCommands()
 	{
-
+		
 	}
-
+	
 	public static void help(Player p)
 	{
 		p.sendMessage("§5===================§c [ SCExtra Help ] §5===================");
@@ -21,12 +21,14 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§c/scextra§7 OtherMessages §e- Accesses the OtherMsgs area of the extra.yml.");
 		p.sendMessage("§c/scextra§7 DieMessage §e- Accesses the DieMessage area of extra.yml.");
 		p.sendMessage("§c/scextra§7 JoinMessage §e- Accesses the JoinMessage area of extra.yml.");
-		p.sendMessage("§c/scextra§7 MeFormat §e- Accesses the MeFormat area of extra.yml.");
+		p.sendMessage("§c/scextra§7 GeneralFormat §e- Accesses the GeneralFormat area of extra.yml.");
 		p.sendMessage("§c/scextra§7 MsgAndReply §e- Accesses the MeFormat area of extra.yml.");
+		p.sendMessage("§c/scextra§7 AdminChat §e- Accesses the AdminChat area of extra.yml.");
+		p.sendMessage("§c/scextra§7 PartyChat §e- Accesses the AdminChat area of extra.yml.");
 		p.sendMessage("§5=====================================================");
-
+		
 	}
-
+	
 	// +------------------------------------------------------+ //
 	// | chatCensor | //
 	// | | //
@@ -42,7 +44,7 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§c/scextra§7 cc removeword [word1] <word2> <word3> ... §e- Removes words from list. ");
 		p.sendMessage("§5=====================================================");
 	}
-
+	
 	public static void ccUse(Player p, String arg)
 	{
 		if (arg.equalsIgnoreCase("true"))
@@ -61,7 +63,7 @@ public class SimpleChatExtraCommands
 		}
 		Variables.plugin.saveYamls();
 	}
-
+	
 	public static void ccView(Player p)
 	{
 		p.sendMessage("§5====================§c [ ChatCensor ] §5===================");
@@ -74,14 +76,14 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§2CurseWords: " + words);
 		p.sendMessage("§5=====================================================");
 	}
-
+	
 	public static void ccAddWord(Player p, String word)
 	{
 		Variables.CurseWords.add(word.toLowerCase());
 		p.sendMessage("§a[SimpleChat] §c" + word + " §5was added to the curseword list");
 		Variables.plugin.saveYamls();
 	}
-
+	
 	public static void ccRemoveWord(Player p, String word)
 	{
 		if (Variables.CurseWords.contains(word.toLowerCase()))
@@ -95,7 +97,7 @@ public class SimpleChatExtraCommands
 		}
 		Variables.plugin.saveYamls();
 	}
-
+	
 	public static void ccAddWord(Player p, String[] words) // Unspecified Args
 	{
 		String wordList = "§7";
@@ -105,10 +107,10 @@ public class SimpleChatExtraCommands
 			Variables.CurseWords.add(word.toLowerCase());
 		}
 		p.sendMessage("§a[SimpleChat] §5The following words were added to the curseword list: " + wordList);
-
+		
 		Variables.plugin.saveYamls();
 	}
-
+	
 	public static void ccRemoveWord(Player p, String[] words) // Unspecified
 																// Args
 	{
@@ -132,7 +134,7 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§5=====================================================");
 		Variables.plugin.saveYamls();
 	}
-
+	
 	// +------------------------------------------------------+ //
 	// | capsPreventor | //
 	// | | //
@@ -149,7 +151,7 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§c/scextra§7 cp setMsgToPlayer  [msg...] §e- Sets the msg sent to the player. ");
 		p.sendMessage("§5=====================================================");
 	}
-
+	
 	public static void cpUse(Player p, String arg)
 	{
 		if (arg.equalsIgnoreCase("true"))
@@ -168,7 +170,7 @@ public class SimpleChatExtraCommands
 		}
 		Variables.plugin.saveYamls();
 	}
-
+	
 	public static void cpView(Player p)
 	{
 		p.sendMessage("§5==================§c [ CapsPreventor ] §5==================");
@@ -184,7 +186,7 @@ public class SimpleChatExtraCommands
 		}
 		p.sendMessage("§5=====================================================");
 	}
-
+	
 	public static void cpSetMaxCapitalLetters(Player p, String max)
 	{
 		int maxInt = 0;
@@ -197,12 +199,12 @@ public class SimpleChatExtraCommands
 		catch (Throwable t)
 		{
 			p.sendMessage("§a[SimpleChat] §5Error, expected integer value.");
-
+			
 		}
-
+		
 		Variables.plugin.saveYamls();
 	}
-
+	
 	public static void cpSetPunishment(Player p, String punishment, String TorF)
 	{
 		if (punishment.equalsIgnoreCase("kick"))
@@ -262,7 +264,7 @@ public class SimpleChatExtraCommands
 		}
 		Variables.plugin.saveYamls();
 	}
-
+	
 	public static void cpSetMsgToPlayer(Player p, String msg) // Unspecified
 																// Args
 	{
@@ -270,7 +272,7 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§a[SimpleChat] §2ReplaceMsg set to: §e" + msg);
 		Variables.plugin.saveYamls();
 	}
-
+	
 	// +------------------------------------------------------+ //
 	// | otherMessages | //
 	// | | //
@@ -287,9 +289,9 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§c/scextra§7 om setLeaveMsg  [msg...] §e- Sets the leave msg.");
 		p.sendMessage("§c/scextra§7 om setKickMsg  [msg...] §e- Sets the kick msg.");
 		p.sendMessage("§5=====================================================");
-
+		
 	}
-
+	
 	public static void omUse(Player p, String arg)
 	{
 		if (arg.equalsIgnoreCase("true"))
@@ -308,7 +310,7 @@ public class SimpleChatExtraCommands
 		}
 		Variables.plugin.saveYamls();
 	}
-
+	
 	public static void omVariables(Player p)
 	{
 		p.sendMessage("§5==================§c [ OtherMessages ] §5==================");
@@ -321,7 +323,7 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§2  +reason: §eReason for kick/ban (Only for kick/ban)");
 		p.sendMessage("§5=====================================================");
 	}
-
+	
 	public static void omView(Player p)
 	{
 		p.sendMessage("§5==================§c [ OtherMessages ] §5==================");
@@ -331,28 +333,28 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§2Kick Message: §e" + Variables.OtherMessagesKick);
 		p.sendMessage("§5=====================================================");
 	}
-
+	
 	public static void omSetJoinMsg(Player p, String msg) // Unspecified Args
 	{
 		Variables.OtherMessagesJoin = msg;
 		p.sendMessage("§a[SimpleChat] §2Join Message set to: §e" + msg);
 		Variables.plugin.saveYamls();
 	}
-
+	
 	public static void omSetLeaveMsg(Player p, String msg) // Unspecified Args
 	{
 		Variables.OtherMessagesLeave = msg;
 		p.sendMessage("§a[SimpleChat] §2Leave Message set to: §e" + msg);
 		Variables.plugin.saveYamls();
 	}
-
+	
 	public static void omSetKickMsg(Player p, String msg) // Unspecified Args
 	{
 		Variables.OtherMessagesKick = msg;
 		p.sendMessage("§a[SimpleChat] §2Kick Message set to: §e" + msg);
 		Variables.plugin.saveYamls();
 	}
-
+	
 	// +------------------------------------------------------+ //
 	// | dieMessage | //
 	// | | //
@@ -368,7 +370,7 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§c/scextra§7 dm setDieMessage [die-event] [msg...] §e- Sets the die msg in the respective event.");
 		p.sendMessage("§5=====================================================");
 	}
-
+	
 	public static void dmUse(Player p, String arg)
 	{
 		if (arg.equalsIgnoreCase("true"))
@@ -387,7 +389,7 @@ public class SimpleChatExtraCommands
 		}
 		Variables.plugin.saveYamls();
 	}
-
+	
 	public static void dmVariables(Player p)
 	{
 		p.sendMessage("§5====================§c [ DieMessage ] §5===================");
@@ -400,7 +402,7 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§2  +other: §eOther entity involved");
 		p.sendMessage("§5=====================================================");
 	}
-
+	
 	public static void dmView(Player p)
 	{
 		p.sendMessage("§5====================§c [ DieMessage ] §5===================");
@@ -411,7 +413,7 @@ public class SimpleChatExtraCommands
 		}
 		p.sendMessage("§5=====================================================");
 	}
-
+	
 	public static void dmSetDieMsg(Player p, String dieEvent, String msg) // Unspecified
 																			// Args
 	{
@@ -501,7 +503,7 @@ public class SimpleChatExtraCommands
 		}
 		Variables.plugin.saveYamls();
 	}
-
+	
 	// +------------------------------------------------------+ //
 	// | joinMessage | //
 	// | | //
@@ -518,7 +520,7 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§c/scextra§7 jm removeLine [line#] §e- Removes a line.");
 		p.sendMessage("§5=====================================================");
 	}
-
+	
 	public static void jmUse(Player p, String arg)
 	{
 		if (arg.equalsIgnoreCase("true"))
@@ -537,7 +539,7 @@ public class SimpleChatExtraCommands
 		}
 		Variables.plugin.saveYamls();
 	}
-
+	
 	public static void jmVariables(Player p)
 	{
 		p.sendMessage("§5===================§c [ JoinMessage ] §5====================");
@@ -556,7 +558,7 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§c  <onlineplayers:&e,&8,default> §e- this is make names yellow (&e), commas dark gray (&8), and only players from the default group.");
 		p.sendMessage("§5=====================================================");
 	}
-
+	
 	public static void jmView(Player p)
 	{
 		p.sendMessage("§5===================§c [ JoinMessage ] §5====================");
@@ -564,29 +566,29 @@ public class SimpleChatExtraCommands
 		int counter = 1;
 		for (String msg : Variables.JoinMsgToPlayer)
 		{
-			p.sendMessage("§c(" + counter +") §2" + msg);
+			p.sendMessage("§c(" + counter + ") §2" + msg);
 			counter++;
 		}
 		p.sendMessage("§5=====================================================");
 	}
-
+	
 	public static void jmSetLine(Player p, String lineNum, String msg) // Unspecified
-																			// Args
+																		// Args
 	{
 		int line = 0;
 		try
 		{
 			line = Integer.parseInt(lineNum);
 		}
-		catch(Throwable t)
+		catch (Throwable t)
 		{
 			p.sendMessage("§a[SimpleChat] §4Error, expected an integer for line number");
 			return;
 		}
-		p.sendMessage("§a[SimpleChat] §2Successfully changed line number " + line + " to §e" + msg );
-		if(line < Variables.JoinMsgToPlayer.size())
+		p.sendMessage("§a[SimpleChat] §2Successfully changed line number " + line + " to §e" + msg);
+		if (line < Variables.JoinMsgToPlayer.size())
 		{
-			Variables.JoinMsgToPlayer.set(line-1, msg);
+			Variables.JoinMsgToPlayer.set(line - 1, msg);
 		}
 		else
 		{
@@ -603,50 +605,52 @@ public class SimpleChatExtraCommands
 		{
 			line = Integer.parseInt(lineNum);
 		}
-		catch(Throwable t)
+		catch (Throwable t)
 		{
 			p.sendMessage("§a[SimpleChat] §4Error, expected an integer for line number");
 			return;
 		}
 		
-		if(line > Variables.JoinMsgToPlayer.size() || line < 0)
+		if (line > Variables.JoinMsgToPlayer.size() || line < 0)
 		{
 			p.sendMessage("§a[SimpleChat] §4Error, the line number you provided was either too big or too small");
 			return;
 		}
 		
-		Variables.JoinMsgToPlayer.remove(line-1);
-		p.sendMessage("§a[SimpleChat] §2Successfully removed line number " + line );
+		Variables.JoinMsgToPlayer.remove(line - 1);
+		p.sendMessage("§a[SimpleChat] §2Successfully removed line number " + line);
 		Variables.plugin.saveYamls();
 	}
-
+	
 	// +------------------------------------------------------+ //
-	// | Me Format | //
+	// | General Format | //
 	// | | //
-	// | Handles all of the me commands: | //
+	// | Handles all of the general format commands: | //
 	// | | //
 	// +------------------------------------------------------+ //
-	public static void meHelp(Player p)
+	public static void gfHelp(Player p)
 	{
-		p.sendMessage("§5===================§c [ MeFormat Help ] §5==================");
-		p.sendMessage("§c/scextra§7 me useMeFormat [true/false] §e- Sets the use value to true or false.");
-		p.sendMessage("§c/scextra§7 me view §e- Views the setup of the section.");
-		p.sendMessage("§c/scextra§7 me variables §e- Views all the variables that can be used in the section.");
-		p.sendMessage("§c/scextra§7 me setMeFormat [format...] §e- Sets the me format.");
+		p.sendMessage("§5==================§c [ GeneralFormat ] §5==================");
+		p.sendMessage("§c/scextra§7 gf useGeneralFormat [true/false] §e- Sets the use value to true or false.");
+		p.sendMessage("§c/scextra§7 gf view §e- Views the setup of the section.");
+		p.sendMessage("§c/scextra§7 gf variables §e- Views all the variables that can be used in the section.");
+		p.sendMessage("§c/scextra§7 gf setMeFormat [format...] §e- Sets the me format.");
+		p.sendMessage("§c/scextra§7 gf setSayFormat [format...] §e- Sets the say format.");
+		p.sendMessage("§c/scextra§7 gf setBroadcastFormat [format...] §e- Sets the broadcast format.");
 		p.sendMessage("§5=====================================================");
 	}
-
-	public static void meUse(Player p, String arg)
+	
+	public static void gfUse(Player p, String arg)
 	{
 		if (arg.equalsIgnoreCase("true"))
 		{
-			Variables.UseSimpleChatMeFormatting = true;
-			p.sendMessage("§a[SimpleChat] §3MeFormatting set to true.");
+			Variables.UseSimpleChatGeneralFormatting = true;
+			p.sendMessage("§a[SimpleChat] §3GeneralFormatting set to true.");
 		}
 		else if (arg.equalsIgnoreCase("false"))
 		{
-			Variables.UseSimpleChatMeFormatting = false;
-			p.sendMessage("§a[SimpleChat] §3MeFormatting set to false.");
+			Variables.UseSimpleChatGeneralFormatting = false;
+			p.sendMessage("§a[SimpleChat] §3GeneralFormatting set to false.");
 		}
 		else
 		{
@@ -654,35 +658,53 @@ public class SimpleChatExtraCommands
 		}
 		Variables.plugin.saveYamls();
 	}
-
-	public static void meVariables(Player p)
+	
+	public static void gfVariables(Player p)
 	{
-		p.sendMessage("§5=====================§c [ MeFormat ] §5====================");
-		p.sendMessage("§2Avaliable Variables: ");
+		p.sendMessage("§5==================§c [ GeneralFormat ] §5==================");
+		p.sendMessage("§2Avaliable Variables for /me: ");
 		p.sendMessage("§2  +pname: §ePlayer Name ");
 		p.sendMessage("§2  +dname: §eDisplay Name");
 		p.sendMessage("§2  +pre: §ePlayer's Prefix ");
 		p.sendMessage("§2  +suf: §ePlayer's Prefix");
-		p.sendMessage("§2  +msg: §eThe message ");
 		p.sendMessage("§2  +gro: §eGroup Name ");
+		p.sendMessage("§2Avaliable Variables for all: ");
+		p.sendMessage("§2  +msg: §eThe message ");
 		p.sendMessage("§5=====================================================");
 	}
-
-	public static void meView(Player p)
+	
+	public static void gfView(Player p)
 	{
-		p.sendMessage("§5=====================§c [ MeFormat ] §5====================");
-		p.sendMessage("§2UseSimpleChatMeFormatting: §e" + Variables.UseSimpleChatMeFormatting);
+		p.sendMessage("§5==================§c [ GeneralFormat ] §5==================");
+		p.sendMessage("§2UseSimpleChatMeFormatting: §e" + Variables.UseSimpleChatGeneralFormatting);
 		p.sendMessage("§2MeFormat: §e" + Variables.MeFormat);
+		p.sendMessage("§2SayFormat: §e" + Variables.SayFormat);
+		p.sendMessage("§2BroadcastFormat: §e" + Variables.BroadcastFormat);
 		p.sendMessage("§5=====================================================");
 	}
-
-	public static void meSetMeFormat(Player p, String msg) // Unspecified Args
+	
+	public static void gfSetMeFormat(Player p, String msg) // Unspecified Args
 	{
 		Variables.MeFormat = msg;
 		p.sendMessage("§a[SimpleChat] §2MeFormat set to §e" + msg);
 		Variables.plugin.saveYamls();
 	}
-
+	
+	public static void gfSetSayFormat(Player p, String msg) // Unspecified Args
+	{
+		Variables.SayFormat = msg;
+		p.sendMessage("§a[SimpleChat] §2SayFormat set to §e" + msg);
+		Variables.plugin.saveYamls();
+	}
+	
+	public static void gfSetBroadcastFormat(Player p, String msg) // Unspecified
+																	// Args
+	{
+		Variables.BroadcastFormat = msg;
+		p.sendMessage("§a[SimpleChat] §2BroadcastFormat set to §e" + msg);
+		Variables.plugin.saveYamls();
+	}
+	
 	// +------------------------------------------------------+ //
 	// | Msging Format | //
 	// | | //
@@ -699,7 +721,7 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§c/scextra§7 mr setReceivingMsg [format...] §e- Sets the receiving format.");
 		p.sendMessage("§5=====================================================");
 	}
-
+	
 	public static void mrUse(Player p, String arg)
 	{
 		if (arg.equalsIgnoreCase("true"))
@@ -718,7 +740,7 @@ public class SimpleChatExtraCommands
 		}
 		Variables.plugin.saveYamls();
 	}
-
+	
 	public static void mrView(Player p)
 	{
 		p.sendMessage("§5===================§c [ Msg And Reply ] §5==================");
@@ -727,7 +749,7 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§2ReceivingMessage §e" + Variables.ReceivingMessage);
 		p.sendMessage("§5=====================================================");
 	}
-
+	
 	public static void mrVariables(Player p)
 	{
 		p.sendMessage("§5===================§c [ Msg And Reply ] §5==================");
@@ -747,7 +769,7 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§2  +msg: §eThe message ");
 		p.sendMessage("§5=====================================================");
 	}
-
+	
 	public static void mrSetSendingMsg(Player p, String format) // Unspecified
 																// Args
 	{
@@ -755,7 +777,7 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§a[SimpleChat] §2SendingMessage format set to §e" + format);
 		Variables.plugin.saveYamls();
 	}
-
+	
 	public static void mrSetReceivingMsg(Player p, String format) // Unspecified
 																	// Args
 	{
@@ -763,4 +785,137 @@ public class SimpleChatExtraCommands
 		p.sendMessage("§a[SimpleChat] §2Message format set to §e" + format);
 		Variables.plugin.saveYamls();
 	}
+	
+	// +------------------------------------------------------+ //
+	// | Admin Chat | //
+	// | | //
+	// | Handles all of the ac commands: | //
+	// | | //
+	// +------------------------------------------------------+ //
+	public static void acHelp(Player p)
+	{
+		p.sendMessage("§5===================§c [ AdminChat Help ] §5==================");
+		p.sendMessage("§c/scextra§7 ac useAdminChat [true/false] §e- Sets the use value to true or false.");
+		p.sendMessage("§c/scextra§7 ac view §e- Views the setup of the section.");
+		p.sendMessage("§c/scextra§7 ac variables §e- Views all the possible variables.");
+		p.sendMessage("§c/scextra§7 ac SetAdminChatFormat [format...] §e- Sets the sending format.");
+		p.sendMessage("§5=====================================================");
+	}
+	
+	public static void acUse(Player p, String arg)
+	{
+		if (arg.equalsIgnoreCase("true"))
+		{
+			Variables.UseSimpleChatAdminChat = true;
+			p.sendMessage("§a[SimpleChat] §3SimpleChatAdminChat set to true.");
+		}
+		else if (arg.equalsIgnoreCase("false"))
+		{
+			Variables.UseSimpleChatAdminChat = false;
+			p.sendMessage("§a[SimpleChat] §3SimpleChatAdminChat set to false.");
+		}
+		else
+		{
+			p.sendMessage("§a[SimpleChat] §4Please enter either true or false.");
+		}
+		Variables.plugin.saveYamls();
+	}
+	
+	public static void acView(Player p)
+	{
+		p.sendMessage("§5=====================§c [ AdminChat ] §5====================");
+		p.sendMessage("§2UseSimpleChatAdminChat: §e" + Variables.UseSimpleChatAdminChat);
+		p.sendMessage("§2AdminChatFormat: §e" + Variables.AdminChatFormat);
+		p.sendMessage("§5=====================================================");
+	}
+	
+	public static void acVariables(Player p)
+	{
+		p.sendMessage("§5=====================§c [ AdminChat ] §5====================");
+		p.sendMessage("§2Avaliable Variables: ");
+		p.sendMessage("§2  +pname: §ePlayer Name ");
+		p.sendMessage("§2  +dname: §eDisplay Name");
+		p.sendMessage("§2  +pre: §ePlayer's Prefix ");
+		p.sendMessage("§2  +suf: §ePlayer's Prefix");
+		p.sendMessage("§2  +gro: §eGroup Name ");
+		p.sendMessage("§2  +msg: §eThe message ");
+		p.sendMessage("§5=====================================================");
+	}
+	
+	public static void acSetAdminChatFormat(Player p, String format) // Unspecified
+	// Args
+	{
+		Variables.AdminChatFormat = format;
+		p.sendMessage("§a[SimpleChat] §2AdminChatFormat format set to §e" + format);
+		Variables.plugin.saveYamls();
+	}
+	
+	
+	
+	
+	// +------------------------------------------------------+ //
+		// | Party Chat | //
+		// | | //
+		// | Handles all of the pc commands: | //
+		// | | //
+		// +------------------------------------------------------+ //
+		public static void pcHelp(Player p)
+		{
+			p.sendMessage("§5==================§c [ PartyChat Help ] §5==================");
+			p.sendMessage("§c/scextra§7 pc usePartyChat [true/false] §e- Sets the use value to true or false.");
+			p.sendMessage("§c/scextra§7 pc view §e- Views the setup of the section.");
+			p.sendMessage("§c/scextra§7 pc variables §e- Views all the possible variables.");
+			p.sendMessage("§c/scextra§7 pc SetPartyChatFormat [format...] §e- Sets the partychat format.");
+			p.sendMessage("§5=====================================================");
+		}
+		
+		public static void pcUse(Player p, String arg)
+		{
+			if (arg.equalsIgnoreCase("true"))
+			{
+				Variables.UseSimpleChatPartyChat = true;
+				p.sendMessage("§a[SimpleChat] §3SimpleChatPartyChat set to true.");
+			}
+			else if (arg.equalsIgnoreCase("false"))
+			{
+				Variables.UseSimpleChatPartyChat = false;
+				p.sendMessage("§a[SimpleChat] §3SimpleChatPartyChat set to false.");
+			}
+			else
+			{
+				p.sendMessage("§a[SimpleChat] §4Please enter either true or false.");
+			}
+			Variables.plugin.saveYamls();
+		}
+		
+		public static void pcView(Player p)
+		{
+			p.sendMessage("§5=====================§c [ PartyChat ] §5====================");
+			p.sendMessage("§2UseSimpleChatPartyChat: §e" + Variables.UseSimpleChatPartyChat);
+			p.sendMessage("§2PartyChatFormat: §e" + Variables.PartyChatFormat);
+			p.sendMessage("§2Parties: §ePlease use \"/party list\" to view party information");
+			p.sendMessage("§5=====================================================");
+		}
+		
+		public static void pcVariables(Player p)
+		{
+			p.sendMessage("§5=====================§c [ PartyChat ] §5====================");
+			p.sendMessage("§2Avaliable Variables: ");
+			p.sendMessage("§2  +pname: §ePlayer Name ");
+			p.sendMessage("§2  +dname: §eDisplay Name");
+			p.sendMessage("§2  +partyname: §eParty Name");
+			p.sendMessage("§2  +pre: §ePlayer's Prefix ");
+			p.sendMessage("§2  +suf: §ePlayer's Prefix");
+			p.sendMessage("§2  +gro: §eGroup Name ");
+			p.sendMessage("§2  +msg: §eThe message ");
+			p.sendMessage("§5=====================================================");
+		}
+		
+		public static void pcSetPartyChatFormat(Player p, String format) // Unspecified
+		// Args
+		{
+			Variables.PartyChatFormat = format;
+			p.sendMessage("§a[SimpleChat] §2PartyChatFormat format set to §e" + format);
+			Variables.plugin.saveYamls();
+		}
 }

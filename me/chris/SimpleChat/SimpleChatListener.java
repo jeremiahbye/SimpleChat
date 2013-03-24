@@ -1,11 +1,22 @@
 package me.chris.SimpleChat;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 
+import me.chris.SimpleChat.CommandHandler.SimpleChatAdminChat;
+import me.chris.SimpleChat.CommandHandler.SimpleChatAdminChatConsole;
 import me.chris.SimpleChat.CommandHandler.SimpleChatCommandHandler;
 import me.chris.SimpleChat.CommandHandler.SimpleChatOtherCommands;
+import me.chris.SimpleChat.CommandHandler.SimpleChatOtherCommandsConsole;
 import me.chris.SimpleChat.CommandHandler.SimpleChatPrivateMessaging;
+import me.chris.SimpleChat.CommandHandler.SimpleChatPrivateMessagingConsole;
+import me.chris.SimpleChat.CommandHandler.SimpleChatSocialSpy;
+import me.chris.SimpleChat.PartyHandler.Party;
+import me.chris.SimpleChat.PartyHandler.PartyAPI;
+import me.chris.SimpleChat.PartyHandler.PartyChat;
+import me.chris.SimpleChat.PartyHandler.PartyCommands;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -20,6 +31,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.server.ServerCommandEvent;
 
 public class SimpleChatListener implements Listener
 {
@@ -40,6 +52,22 @@ public class SimpleChatListener implements Listener
 	public void playerJoin(PlayerJoinEvent event)
 	{
 		Player p = event.getPlayer();
+		
+		if(PartyAPI.isPlayerInAParty(p))
+		{
+			Party pty = PartyAPI.findPartyofPlayer(p);
+			pty.addOnlineMember(p);
+		}
+		
+		if(Variables.perms.has(p, "SimpleChat.SocialSpy") || Variables.perms.has(p, "SimpleChat.*"))
+		{
+			Variables.onlineSocialSpy.add(p);
+		}
+		
+		if(Variables.perms.has(p, "SimpleChat.AdminChat") || Variables.perms.has(p, "SimpleChat.*"))
+		{
+			Variables.onlineAdminChat.add(p);
+		}
 
 		if (p.isOp())
 		{
@@ -176,14 +204,28 @@ public class SimpleChatListener implements Listener
 	{
 		Player p = event.getPlayer();
 		String msg = event.getMessage();
-		
-		if(Variables.lockedPM.containsKey(p))
+
+		if (Variables.adminChat.contains(p))
+		{
+			event.setCancelled(true);
+			SimpleChatAdminChat.adminChat(p, msg);
+			return;
+		}
+
+		if (Variables.lockedPM.containsKey(p))
 		{
 			event.setCancelled(true);
 			SimpleChatPrivateMessaging.lockedPMChat(p, msg);
 			return;
 		}
 		
+		if (Variables.lockedPartyChat.containsKey(p))
+		{
+			event.setCancelled(true);
+			PartyChat.partyChat(p, msg);
+			return;
+		}
+
 		msg = msg.replace("%", "%%");
 
 		if (SimpleChatChatState.getChatState().equalsIgnoreCase("off") && !Variables.perms.has(p, "simplechat.chatoffbypass"))
@@ -224,14 +266,67 @@ public class SimpleChatListener implements Listener
 			}
 		}
 
-		// Checks to see if player can use color in chat.
-		if (msg.contains("&") && Variables.perms.has(p, "simplechat.color"))
+		// Checks to see if player can use color in chat. DEPRECIATED
+		/*
+		 * if (msg.contains("&") && Variables.perms.has(p,
+		 * "simplechat.color.*")) { msg = msg.replace("&", "§"); } else if
+		 * (msg.contains("&") && !Variables.perms.has(p, "simplechat.color")) {
+		 * p
+		 * .sendMessage("§a[SimpleChat] §4You dont have perms for colored chat!"
+		 * ); }
+		 */
+
+		// Checks to see if player can use color in chat. Has support for perm
+		// nodes for each color
+		if (msg.contains("&"))
 		{
-			msg = msg.replace("&", "§");
-		}
-		else if (msg.contains("&") && !Variables.perms.has(p, "simplechat.color"))
-		{
-			p.sendMessage("§a[SimpleChat] §4You dont have perms for colored chat!");
+			char[] msgChar = msg.toCharArray();
+			boolean permsStatus = true;
+			HashMap<Integer, Character> indexes = new HashMap<Integer, Character>();
+			int counter = 0;
+			for (Character c : msgChar)
+			{
+				if (c.equals('&'))
+				{
+					if (counter < msgChar.length - 1)
+					{
+						indexes.put(counter, msgChar[counter + 1]);
+					}
+					else
+					{
+						indexes.put(counter, ' ');
+					}
+				}
+				counter++;
+			}
+
+			for (Entry<Integer, Character> entry : indexes.entrySet())
+			{
+				if (entry.getValue() == ' ')
+				{
+					continue;
+				}
+
+				if (Variables.perms.has(p, "simplechat.color") || Variables.perms.has(p, "simplechat.color.*") || Variables.perms.has(p, ("simplechat.color." + entry.getValue())))
+				{
+					msgChar[entry.getKey()] = '§';
+				}
+				else
+				{
+					permsStatus = false;
+				}
+			}
+
+			if (permsStatus == false)
+			{
+				p.sendMessage("§a[SimpleChat] §4You dont have perms for one (or all) of the color values you tried to use!");
+			}
+
+			msg = "";
+			for (Character c : msgChar)
+			{
+				msg = msg + c;
+			}
 		}
 
 		playerChat = playerChat.replace("+msg", msg);
@@ -253,15 +348,33 @@ public class SimpleChatListener implements Listener
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerQuit(PlayerQuitEvent event)
 	{
+		Player p = event.getPlayer();
+		
 		if (Variables.UseSimpleChatOtherMessages == true)
 		{
-			Player p = event.getPlayer();
+			
 			String[] vars = { "+pname", "+dname", "+pre", "+suf", "+gro", "&" };
 			String[] replace = { p.getName(), p.getDisplayName(), SimpleChatAPI.getPrefix(p), SimpleChatAPI.getSuffix(p), SimpleChatAPI.getGroup(p), "§" };
 
 			String leaveMsg = SimpleChatHelperMethods.replaceVars(Variables.OtherMessagesLeave, vars, replace);
 
 			event.setQuitMessage(leaveMsg);
+		}
+		
+		if(PartyAPI.isPlayerInAParty(p))
+		{
+			Party pty = PartyAPI.findPartyofPlayer(p);
+			pty.removeOnlineMember(p);
+		}
+		
+		if(Variables.perms.has(p, "SimpleChat.SocialSpy") || Variables.perms.has(p, "SimpleChat.*"))
+		{
+			Variables.onlineSocialSpy.remove(p);
+		}
+		
+		if(Variables.perms.has(p, "SimpleChat.AdminChat") || Variables.perms.has(p, "SimpleChat.*"))
+		{
+			Variables.onlineAdminChat.remove(p);
 		}
 	}
 
@@ -277,6 +390,22 @@ public class SimpleChatListener implements Listener
 
 			String kickMsg = SimpleChatHelperMethods.replaceVars(Variables.OtherMessagesKick, vars, replace);
 			event.setLeaveMessage(kickMsg);
+		}
+		
+		if(PartyAPI.isPlayerInAParty(p))
+		{
+			Party pty = PartyAPI.findPartyofPlayer(p);
+			pty.removeOnlineMember(p);
+		}
+		
+		if(Variables.perms.has(p, "SimpleChat.SocialSpy") || Variables.perms.has(p, "SimpleChat.*"))
+		{
+			Variables.onlineSocialSpy.remove(p);
+		}
+		
+		if(Variables.perms.has(p, "SimpleChat.AdminChat") || Variables.perms.has(p, "SimpleChat.*"))
+		{
+			Variables.onlineAdminChat.remove(p);
 		}
 	}
 
@@ -396,26 +525,32 @@ public class SimpleChatListener implements Listener
 		{
 			for (int index = 1; index < tempArgs.length; index++)
 			{
-				args[index - 1] = tempArgs[index];
+				args[(index - 1)] = tempArgs[index];
 			}
 		}
 
 		Player p = event.getPlayer();
 
-		if ((cmd.equalsIgnoreCase("message") || cmd.equalsIgnoreCase("msg") || cmd.equalsIgnoreCase("m") || cmd.equalsIgnoreCase("tell") || cmd.equalsIgnoreCase("whisper") || cmd.equalsIgnoreCase("pm")) && Variables.UseSimpleChatMsgAndReplyFormatting == true)
+		if (((cmd.equalsIgnoreCase("message")) || (cmd.equalsIgnoreCase("msg")) || (cmd.equalsIgnoreCase("m")) || (cmd.equalsIgnoreCase("tell")) || (cmd.equalsIgnoreCase("whisper")) || (cmd.equalsIgnoreCase("pm"))) && (Variables.UseSimpleChatMsgAndReplyFormatting))
 		{
-			if (Variables.perms.has(p, "simplechat.msg") || Variables.perms.has(p, "simplechat.*"))
+			if ((Variables.perms.has(p, "simplechat.msg")) || (Variables.perms.has(p, "simplechat.*")))
 			{
-				
 				if (args.length > 1)
 				{
-					SimpleChatPrivateMessaging.msg(p, args[0], SimpleChatCommandHandler.combineArgs(1, args));
+					if (args[0].equalsIgnoreCase("Console"))
+					{
+						SimpleChatPrivateMessagingConsole.msgToConsole(p, SimpleChatCommandHandler.combineArgs(1, args));
+					}
+					else
+					{
+						SimpleChatPrivateMessaging.msg(p, args[0], SimpleChatCommandHandler.combineArgs(1, args));
+					}
 				}
 				else if (args.length == 1)
 				{
 					SimpleChatPrivateMessaging.lockPM(p, args[0]);
 				}
-				else if (args.length == 0 && Variables.lockedPM.containsKey(p))
+				else if ((args.length == 0) && (Variables.lockedPM.containsKey(p)))
 				{
 					SimpleChatPrivateMessaging.unlockPM(p);
 				}
@@ -431,10 +566,9 @@ public class SimpleChatListener implements Listener
 
 			event.setCancelled(true);
 		}
-
-		else if ((cmd.equalsIgnoreCase("reply") || cmd.equalsIgnoreCase("r")) && Variables.UseSimpleChatMsgAndReplyFormatting == true)
+		else if (((cmd.equalsIgnoreCase("reply")) || (cmd.equalsIgnoreCase("r"))) && (Variables.UseSimpleChatMsgAndReplyFormatting))
 		{
-			if (Variables.perms.has(p, "simplechat.reply") || Variables.perms.has(p, "simplechat.*"))
+			if ((Variables.perms.has(p, "simplechat.reply")) || (Variables.perms.has(p, "simplechat.*")))
 			{
 				if (args.length >= 1)
 				{
@@ -451,9 +585,9 @@ public class SimpleChatListener implements Listener
 			}
 			event.setCancelled(true);
 		}
-		else if (cmd.equalsIgnoreCase("me") && Variables.UseSimpleChatMeFormatting == true)
+		else if ((cmd.equalsIgnoreCase("me")) && (Variables.UseSimpleChatGeneralFormatting))
 		{
-			if (Variables.perms.has(p, "simplechat.me") || Variables.perms.has(p, "simplechat.*"))
+			if ((Variables.perms.has(p, "simplechat.me")) || (Variables.perms.has(p, "simplechat.*")))
 			{
 				if (args.length >= 1)
 				{
@@ -467,10 +601,248 @@ public class SimpleChatListener implements Listener
 			else
 			{
 				SimpleChatCommandHandler.noPerms(p, cmd, args);
-
 			}
+
+			event.setCancelled(true);
+		}
+		else if ((cmd.equalsIgnoreCase("say")) && (Variables.UseSimpleChatGeneralFormatting))
+		{
+			if ((Variables.perms.has(p, "simplechat.say")) || (Variables.perms.has(p, "simplechat.*")))
+			{
+				if (args.length >= 1)
+				{
+					SimpleChatOtherCommands.say(p, args);
+				}
+				else
+				{
+					SimpleChatCommandHandler.invalidCommand(p, cmd, args);
+				}
+			}
+			else
+			{
+				SimpleChatCommandHandler.noPerms(p, cmd, args);
+			}
+
+			event.setCancelled(true);
+		}
+		else if (((cmd.equalsIgnoreCase("broadcast")) || (cmd.equalsIgnoreCase("bcast"))) && (Variables.UseSimpleChatGeneralFormatting))
+		{
+			if ((Variables.perms.has(p, "simplechat.broadcast")) || (Variables.perms.has(p, "simplechat.*")))
+			{
+				if (args.length >= 1)
+				{
+					SimpleChatOtherCommands.broadcast(p, args);
+				}
+				else
+				{
+					SimpleChatCommandHandler.invalidCommand(p, cmd, args);
+				}
+			}
+			else
+			{
+				SimpleChatCommandHandler.noPerms(p, cmd, args);
+			}
+
+			event.setCancelled(true);
+		}
+		else if (((cmd.equalsIgnoreCase("a")) || (cmd.equalsIgnoreCase("admin")) || (cmd.equalsIgnoreCase("achat")) || (cmd.equalsIgnoreCase("adminchat"))) && (Variables.UseSimpleChatAdminChat))
+		{
+			if ((Variables.perms.has(p, "simplechat.adminchat")) || (Variables.perms.has(p, "simplechat.*")))
+			{
+				if (args.length == 0)
+				{
+					SimpleChatAdminChat.toggleAdminChat(p);
+				}
+				else if (args.length >= 1)
+				{
+					String msg = "";
+					for (String word : args)
+					{
+						msg = msg + " " + word;
+					}
+					msg = msg.trim();
+					SimpleChatAdminChat.adminChat(p, msg);
+				}
+				else
+				{
+					SimpleChatCommandHandler.invalidCommand(p, cmd, args);
+				}
+			}
+			else
+			{
+				SimpleChatCommandHandler.noPerms(p, cmd, args);
+			}
+
+			event.setCancelled(true);
+		}
+		else if (((cmd.equalsIgnoreCase("sspm")) || (cmd.equalsIgnoreCase("socialspypm"))) && (Variables.UseSimpleChatMsgAndReplyFormatting))
+		{
+			if ((Variables.perms.has(p, "simplechat.socialspy")) || (Variables.perms.has(p, "simplechat.*")))
+			{
+				if (args.length == 0)
+				{
+					SimpleChatSocialSpy.toggleSocialSpyPM(p);
+				}
+				else
+				{
+					SimpleChatCommandHandler.invalidCommand(p, cmd, args);
+				}
+			}
+			else
+			{
+				SimpleChatCommandHandler.noPerms(p, cmd, args);
+			}
+
+			event.setCancelled(true);
+		}
+		else if (((cmd.equalsIgnoreCase("ssparty")) || (cmd.equalsIgnoreCase("socialspyparty"))) && (Variables.UseSimpleChatPartyChat))
+		{
+			if ((Variables.perms.has(p, "simplechat.socialspy")) || (Variables.perms.has(p, "simplechat.*")))
+			{
+				if (args.length == 0)
+				{
+					SimpleChatSocialSpy.toggleSocialSpyParty(p);
+				}
+				else
+				{
+					SimpleChatCommandHandler.invalidCommand(p, cmd, args);
+				}
+			}
+			else
+			{
+				SimpleChatCommandHandler.noPerms(p, cmd, args);
+			}
+
+			event.setCancelled(true);
+		}
+		else if ((cmd.equalsIgnoreCase("p")) && (Variables.UseSimpleChatPartyChat))
+		{
+			if ((Variables.perms.has(p, "simplechat.party.talk")) || (Variables.perms.has(p, "simplechat.*") || (Variables.perms.has(p, "simplechat.party.*") || (Variables.perms.has(p, "simplechat.party.admin")))))
+			{
+				if (args.length == 0)
+				{
+					PartyChat.togglePartyChat(p);
+				}
+				else if (args.length >= 1)
+				{
+					String msg = "";
+					for (String word : args)
+					{
+						msg = msg + " " + word;
+					}
+					msg = msg.trim();
+					PartyChat.partyChat(p, msg);
+				}
+				else
+				{
+					SimpleChatCommandHandler.invalidCommand(p, cmd, args);
+				}
+			}
+			else
+			{
+				SimpleChatCommandHandler.noPerms(p, cmd, args);
+			}
+
+			event.setCancelled(true);
+		}
+		else if ((cmd.equalsIgnoreCase("party")) && (Variables.UseSimpleChatPartyChat))
+		{
+			
+			new PartyCommands(p, cmd, args);
+			
 			event.setCancelled(true);
 		}
 	}
 
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onServerCommandEvent(ServerCommandEvent event)
+	{
+		String commandLine = event.getCommand();
+		String[] tempArgs = commandLine.split(" ");
+		String cmd = tempArgs[0];
+		String[] args = new String[tempArgs.length - 1];
+
+		if (args.length > 0)
+		{
+			for (int index = 1; index < tempArgs.length; index++)
+			{
+				args[(index - 1)] = tempArgs[index];
+			}
+		}
+
+		if (((cmd.equalsIgnoreCase("message")) || (cmd.equalsIgnoreCase("msg")) || (cmd.equalsIgnoreCase("m")) || (cmd.equalsIgnoreCase("tell")) || (cmd.equalsIgnoreCase("whisper")) || (cmd.equalsIgnoreCase("pm"))) && (Variables.UseSimpleChatMsgAndReplyFormatting))
+		{
+			if (args.length > 1)
+			{
+				SimpleChatPrivateMessagingConsole.msgFromConsole(args[0], SimpleChatCommandHandler.combineArgs(1, args));
+			}
+			else
+			{
+				SimpleChatCommandHandler.invalidCommand(cmd, args);
+			}
+			event.setCommand("cmdrdrct");
+		}
+		else if (((cmd.equalsIgnoreCase("reply")) || (cmd.equalsIgnoreCase("r"))) && (Variables.UseSimpleChatMsgAndReplyFormatting))
+		{
+			Variables.plugin.getServer().getConsoleSender().sendMessage("[SimpleChat] The /reply command is not programmed to work with console.");
+			event.setCommand("");
+		}
+		else if ((cmd.equalsIgnoreCase("me")) && (Variables.UseSimpleChatGeneralFormatting))
+		{
+			if (args.length >= 1)
+			{
+				SimpleChatOtherCommandsConsole.me(args);
+			}
+			else
+			{
+				SimpleChatCommandHandler.invalidCommand(cmd, args);
+			}
+			event.setCommand("cmdrdrct");
+		}
+		else if ((cmd.equalsIgnoreCase("say")) && (Variables.UseSimpleChatGeneralFormatting))
+		{
+			if (args.length >= 1)
+			{
+				SimpleChatOtherCommandsConsole.say(args);
+			}
+			else
+			{
+				SimpleChatCommandHandler.invalidCommand(cmd, args);
+			}
+
+			event.setCommand("cmdrdrct");
+		}
+		else if (((cmd.equalsIgnoreCase("broadcast")) || (cmd.equalsIgnoreCase("bcast"))) && (Variables.UseSimpleChatGeneralFormatting))
+		{
+			if (args.length >= 1)
+			{
+				SimpleChatOtherCommandsConsole.broadcast(args);
+			}
+			else
+			{
+				SimpleChatCommandHandler.invalidCommand(cmd, args);
+			}
+
+			event.setCommand("cmdrdrct");
+		}
+		else if (((cmd.equalsIgnoreCase("a")) || (cmd.equalsIgnoreCase("admin")) || (cmd.equalsIgnoreCase("achat")) || (cmd.equalsIgnoreCase("adminchat"))) && (Variables.UseSimpleChatAdminChat))
+		{
+			if (args.length >= 1)
+			{
+				String msg = "";
+				for (String word : args)
+				{
+					msg = msg + " " + word;
+				}
+				msg = msg.trim();
+				SimpleChatAdminChatConsole.adminChat(msg);
+			}
+			else
+			{
+				SimpleChatCommandHandler.invalidCommand(cmd, args);
+			}
+
+			event.setCommand("cmdrdrct");
+		}
+	}
 }

@@ -6,49 +6,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.logging.Level;
-import java.util.logging.Logger;
-
 
 import me.chris.SimpleChat.CommandHandler.SimpleChatCommandHandler;
+import me.chris.SimpleChat.PartyHandler.Party;
+import me.chris.SimpleChat.PartyHandler.PartyAPI;
 import net.milkbowl.vault.permission.Permission;
 
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class SimpleChatMain extends JavaPlugin
 {
-    static Logger log = Logger.getLogger("Minecraft");
-    
-    File configFile;
-	File extraFile;
-	
-	File configExampleFile;
-	File extraExampleFile;
-	
-	public static FileConfiguration config;
-	public static FileConfiguration extra;	
-	public static FileConfiguration configExample;
-	public static FileConfiguration extraExample;	
-	public static Permission perms;
-		
-	@Override
+    @Override
 	public void onEnable()
 	{
-		if (!setupPermissions())
-		{
-			log.log(Level.SEVERE, "[SimpleChat] No Permission found! Disabling plugin!");
-			getServer().getPluginManager().disablePlugin(this);
-			return;
-		}
-		
-		configFile = new File(getDataFolder(), "config.yml");
-		extraFile = new File(getDataFolder(), "extra.yml");
-		configExampleFile = new File(getDataFolder(), "config-example.yml");
-		extraExampleFile = new File(getDataFolder(), "extra-example.yml");
-		
-		try
+    	new Variables(this);
+    	
+    	try
 		{
 			firstRun();
 		}
@@ -56,10 +31,17 @@ public class SimpleChatMain extends JavaPlugin
 		{
 			e.printStackTrace();
 		}
-		
-		config = new YamlConfiguration();
-		extra = new YamlConfiguration();
-		loadYamls();
+    	
+    	SimpleChatYamlUpdater.updateExtraYaml();
+    	
+    	loadYamls();
+    	
+    	if (!setupPermissions())
+		{
+			Variables.log.log(Level.SEVERE, "[SimpleChat] No Permission found! Disabling plugin!");
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
 		
 		Variables.matching = SimpleChatHelperMethods.makeSureMatch(Variables.perms.getGroups(), SimpleChatAPI.getGroups());
 		
@@ -72,6 +54,7 @@ public class SimpleChatMain extends JavaPlugin
 		getCommand("chat").setExecutor(commandHandler);
 		getCommand("chaton").setExecutor(commandHandler);
 		getCommand("chatoff").setExecutor(commandHandler);
+		getCommand("cmdrdrct").setExecutor(commandHandler);
 				
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
 		{
@@ -87,61 +70,64 @@ public class SimpleChatMain extends JavaPlugin
 
 		}, 0L, 200L);
 		
+		Variables.log.log(Level.INFO, "[SimpleChat] Version " + Variables.version.substring(10));
+		Variables.log.log(Level.INFO, "[SimpleChat] Started successfully.");	
 		
-		
-		copy(getResource("config-example.yml"), configExampleFile);
-		copy(getResource("extra-example.yml"), extraExampleFile);
-		
-		log.log(Level.INFO, "[SimpleChat] Version " + Variables.version.substring(10));
-		log.log(Level.INFO, "[SimpleChat] Started successfully.");		
+		for(Player p : getServer().getOnlinePlayers())
+		{
+			if(PartyAPI.isPlayerInAParty(p))
+			{
+				Party pty = PartyAPI.findPartyofPlayer(p);
+				pty.addOnlineMember(p);
+			}
+			
+			if(Variables.perms.has(p, "SimpleChat.SocialSpy") || Variables.perms.has(p, "SimpleChat.*"))
+			{
+				Variables.onlineSocialSpy.add(p);
+			}
+			
+			if(Variables.perms.has(p, "SimpleChat.AdminChat") || Variables.perms.has(p, "SimpleChat.*"))
+			{
+				Variables.onlineAdminChat.add(p);
+			}
+		}
 	}
 	
 	@Override
 	public void onDisable()
 	{
-		log.log(Level.INFO, "[SimpleChat] Stopped.");	
+		Variables.log.log(Level.INFO, "[SimpleChat] Stopped.");	
 	}
 	
 	private void firstRun() throws Exception
 	{
-		if (!configFile.exists())
+		if (!Variables.configFile.exists())
 		{
-			log.log(Level.INFO, "[SimpleChat] No config.yml file found. Attempting to make one. ");
-			configFile.getParentFile().mkdirs();
-			copy(getResource("config.yml"), configFile);
-			log.log(Level.INFO, "[SimpleChat] File Made Successfully ");
+			Variables.log.log(Level.INFO, "[SimpleChat] No config.yml file found. Attempting to make one. ");
+			Variables.configFile.getParentFile().mkdirs();
+			copy(getResource("config.yml"), Variables.configFile);
+			Variables.log.log(Level.INFO, "[SimpleChat] File Made Successfully ");
 		}
 		else
 		{
-			log.log(Level.INFO, "[SimpleChat] Config Found. Using it.  ");
+			Variables.log.log(Level.INFO, "[SimpleChat] Config Found. Using it.  ");
 		}
 		
-		if (!extraFile.exists())
+		if (!Variables.extraFile.exists())
 		{
-			log.log(Level.INFO, "[SimpleChat] No extra.yml file found. Attempting to make one. ");
-			extraFile.getParentFile().mkdirs();
-			copy(getResource("extra.yml"), extraFile);
-			log.log(Level.INFO, "[SimpleChat] File Made Successfully ");
+			Variables.log.log(Level.INFO, "[SimpleChat] No extra.yml file found. Attempting to make one. ");
+			Variables.extraFile.getParentFile().mkdirs();
+			copy(getResource("extra.yml"), Variables.extraFile);
+			Variables.log.log(Level.INFO, "[SimpleChat] File Made Successfully ");
 		}
 		else
 		{
-			log.log(Level.INFO, "[SimpleChat] Extra Found. Using it.  ");
+			Variables.log.log(Level.INFO, "[SimpleChat] Extra Found. Using it.  ");
 		}
 		
-		if (!configExampleFile.exists())
-		{
-			configExampleFile.getParentFile().mkdirs();
-			copy(getResource("config-example.yml"), configExampleFile);
-		}
-		
-		if (!extraExampleFile.exists())
-		{
-			extraExampleFile.getParentFile().mkdirs();
-			copy(getResource("extra-example.yml"), extraExampleFile);
-		}
 	}
 	
-	private void copy(InputStream in, File file)
+	public void copy(InputStream in, File file)
 	{
 		try
 		{
@@ -165,7 +151,7 @@ public class SimpleChatMain extends JavaPlugin
 	{
 		try
 		{
-			config.load(configFile);
+			Variables.config.load(Variables.configFile);
 		}
 		catch (Exception e)
 		{
@@ -174,14 +160,14 @@ public class SimpleChatMain extends JavaPlugin
 		
 		try
 		{
-			extra.load(extraFile);
+			Variables.extra.load(Variables.extraFile);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
 		
-		new Variables(this,  perms, config,  extra,  log);
+		Variables.importVariables();
 	}
 	
 	public void saveYamls()
@@ -190,7 +176,7 @@ public class SimpleChatMain extends JavaPlugin
 		
 		try
 		{
-			config.save(configFile);
+			Variables.config.save(Variables.configFile);
 		}
 		catch (IOException e)
 		{
@@ -199,14 +185,12 @@ public class SimpleChatMain extends JavaPlugin
 		
 		try
 		{
-			extra.save(extraFile);
+			Variables.extra.save(Variables.extraFile);
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
-		
-		
 	}
 	
 	private Boolean setupPermissions()
@@ -214,9 +198,9 @@ public class SimpleChatMain extends JavaPlugin
 		RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
 		if (permissionProvider != null)
 		{
-			perms = permissionProvider.getProvider();
+			Variables.perms = permissionProvider.getProvider();
 		}
-		return (perms != null);
+		return (Variables.perms != null);
 	}	
 	
 }
