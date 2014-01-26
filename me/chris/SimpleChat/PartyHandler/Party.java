@@ -140,13 +140,22 @@ public class Party
 			}
 		}
 		
-		for (Player onlineP : onlineMembers)
-		{
-			if (onlineP.getName().equalsIgnoreCase(member))
-			{
-				onlineMembers.remove(onlineP);
-			}
+		Iterator<Player> itr=onlineMembers.iterator();
+		while(itr.hasNext()){
+			Player onlineP=itr.next();	
+				if (onlineP.getName().equalsIgnoreCase(member))
+				{
+					itr.remove();
+				}
 		}
+		
+//		for (Player onlineP : onlineMembers)
+//		{
+//			if (onlineP.getName().equalsIgnoreCase(member))
+//			{
+//				onlineMembers.remove(onlineP);
+//			}
+//		}
 		
 		if (contains == true)
 		{
