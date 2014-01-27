@@ -2,10 +2,12 @@ package me.chris.SimpleChat.CommandHandler;
 
 // import java.io.File;
 import java.util.List;
+import java.util.logging.Level;
 
 import me.chris.SimpleChat.SimpleChatAPI;
 import me.chris.SimpleChat.SimpleChatHelperMethods;
 import me.chris.SimpleChat.Variables;
+
 
 // import org.bukkit.configuration.file.FileConfiguration;
 // import org.bukkit.configuration.file.YamlConfiguration;
@@ -65,9 +67,9 @@ public class SimpleChatPrivateMessaging
 			
 			onlinePlayer.sendMessage("§8§l[§r§7" + p.getName() + " §e-> §7" + matchedPlayer.getName() + "§8§l] §r§6§o"
 					+ msg);
-			
 		}
-		
+		Variables.log.log(Level.INFO, "[SimpleChat] [" + p.getName() + " -> " + matchedPlayer.getName() + "] "
+				+ msg);
 	}
 	
 	public static void reply(Player p, String msg)

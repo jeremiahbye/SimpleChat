@@ -1,5 +1,7 @@
 package me.chris.SimpleChat.PartyHandler;
 
+import java.util.logging.Level;
+
 import me.chris.SimpleChat.Variables;
 
 import org.bukkit.entity.Player;
@@ -123,5 +125,7 @@ public class PartyCommands
 		command = command.trim();
 		p.sendMessage("§a[SimpleChat] §4The following command is invalid:");
 		p.sendMessage("§a[SimpleChat] §o§c/" + command);
+		Variables.log.log(Level.INFO, "[SimpleChat] [" + p.getName()  +"]The following command is invalid:");
+		Variables.log.log(Level.INFO, "[SimpleChat] /" + command);
 	}
 }

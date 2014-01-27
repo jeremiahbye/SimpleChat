@@ -1,6 +1,7 @@
 package me.chris.SimpleChat.PartyHandler;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import me.chris.SimpleChat.Variables;
 
@@ -139,7 +140,7 @@ public class Party
 				break;
 			}
 		}
-		
+
 		Iterator<Player> itr=onlineMembers.iterator();
 		while(itr.hasNext()){
 			Player onlineP=itr.next();	

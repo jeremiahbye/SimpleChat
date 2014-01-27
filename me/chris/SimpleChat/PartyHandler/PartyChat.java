@@ -1,6 +1,7 @@
 package me.chris.SimpleChat.PartyHandler;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import me.chris.SimpleChat.SimpleChatAPI;
 import me.chris.SimpleChat.SimpleChatHelperMethods;
@@ -120,6 +121,8 @@ public class PartyChat
 				
 				onlineSocialSpy.sendMessage("§8§l[§7" + pty.partyName + "§8§l] §7" + p.getName() + ": §e§o" + msg);
 			}
+
+			Variables.log.log(Level.INFO, "[PartyChat] [" + pty.partyName + "] " + p.getName() + ": " + msg);
 			
 		}
 		else
