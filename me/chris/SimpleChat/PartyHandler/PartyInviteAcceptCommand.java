@@ -54,7 +54,7 @@ public class PartyInviteAcceptCommand
 				Variables.inviteToParty.put(matchedPlayer, pty);
 				
 				matchedPlayer.sendMessage("§a[SimpleChat] §3You have been invited to the §c" + pty.partyName
-						+ "§3 by §c" + otherP + "§3. To accept this invitation, type §c/party accept");
+						+ "§3 by §c" + p.getName() + "§3. To accept this invitation, type §c/party accept");
 				p.sendMessage("§a[SimpleChat] §3Your invite to §c" + otherP + "§3 was sent.");
 			}
 			else
